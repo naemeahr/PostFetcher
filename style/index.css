@@ -11,30 +11,21 @@ body {
   border: 1px solid #7a7a7a;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
-.postContainer .post-title {
+.postContainer .postTitle {
   font-size: 18px;
   color: #333;
   font-family: "Montserrat";
 }
-.postContainer .post-body {
+.postContainer .postBody {
   color: #666;
   font-size: 14px;
   font-family: "Roboto";
 }
-.searchButton {
-  background-color: transparent;
+.searchBtn {
+  background-color: #3498db;
   border: none;
   padding: 0;
   cursor: pointer;
-}
-
-.searchIcon {
-  font-size: 17px;
-  color: #333;
-}
-
-.searchButton:hover .searchIcon {
-  color: #0056b3;
 }
 header {
   display: flex;
@@ -43,17 +34,21 @@ header {
   margin-bottom: 20px;
 }
 button {
-  background-color: #007bff;
+  background-color: #3498db;
   color: white;
   border: none;
   padding: 10px;
   cursor: pointer;
-  border-radius: 5px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
 }
 button:hover {
-  color: #0056b3;
+  background-color: #2980b9;
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
 }
 
 .commentCard {
@@ -62,17 +57,19 @@ button:hover {
   margin: 12px 0;
   border-radius: 10px;
   background-color: #5dacec;
+  margin-bottom: 15px;
 }
 
 .postCard {
-  border: 1px solid #ddd;
-  padding: 15px;
+  border: 1px solid #e3e6ea;
+  padding: 12px;
   margin: 15px 0;
   border-radius: 9px;
-  background-color: #f9f9f9;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background-color: #fafafa;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
 }
 #postId {
   border-radius: 10px;
-  color: #666;
+  color: #686868;
 }
