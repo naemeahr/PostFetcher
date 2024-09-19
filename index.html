@@ -16,15 +16,26 @@
   </head>
   <body>
     <header class="bg-primary py-3">
-      <input
-        type="text"
-        id="postId"
-        placeholder="search"
-        class="form-control w-50 me-1"
-      />
-      <button id="searchBtn" class="btn btn-light">
-        <i class="fas fa-search"></i>
-      </button>
+      <div class="container w-50 mx-auto">
+        <div class="input-group">
+          <input
+            type="text"
+            id="postId"
+            placeholder="search"
+            class="form-control"
+          />
+
+          <button id="searchBtn" class="btn btn-light input-group-append">
+            <i id="icon" class="fas fa-search"></i>
+            <span
+              id="spinner"
+              class="spinner-border spinner-border-sm d-none"
+              role="status"
+              aria-hidden="true"
+            ></span>
+          </button>
+        </div>
+      </div>
     </header>
 
     <div class="container" id="postsContainer"></div>

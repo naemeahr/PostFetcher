@@ -24,7 +24,7 @@ main {
 }
 
 .commentCards {
-  background-color:#fafafa;
+  background-color: #fafafa;
   border: 1px solid #e3e6ea;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -62,4 +62,28 @@ main {
   background-color: #2980b9;
   box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
   transform: translateY(-2px);
+}
+.spinner {
+  border: 8px solid #f3f3f3;
+  border-top: 10px solid #3498db;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  animation: spin 1s linear infinite;
+  margin: 20px auto;
+  display: none;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

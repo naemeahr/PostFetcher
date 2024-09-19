@@ -1,22 +1,19 @@
 const baseUrl = "https://jsonplaceholder.typicode.com";
 
-function fetchAndDisplayPost(postId) {
-  const postsContainer = document.getElementById("postsContainer");
+const postsContainer = document.getElementById("postsContainer");
+const searchBtn = document.getElementById("searchBtn");
+const spinner = document.getElementById("spinner");
+const postIdInput = document.getElementById("postId");
 
+function fetchAndDisplayPost(postId) {
   if (postId) {
     fetch(`${baseUrl}/posts/${postId}`)
       .then((response) => response.json())
       .then((post) => {
         postsContainer.innerHTML = "";
         if (post && postId) {
-          const div = document.createElement("div");
-          const title = document.createElement("h2");
-          const body = document.createElement("p");
-          title.innerText = post.title;
-          body.innerText = post.body;
-          div.classList.add("postCard");
-          div.append(title, body);
-          postsContainer.appendChild(div);
+          const postCard = createPostCard(post);
+          postsContainer.appendChild(postCard);
         } else {
           postsContainer.innerHTML = "<p>Not Post Found..</p>";
         }
@@ -28,12 +25,18 @@ function fetchAndDisplayPost(postId) {
 }
 
 document.getElementById("searchBtn").addEventListener("click", function () {
-  const postId = document.getElementById("postId").value.trim();
+  spinner.classList.remove('d-none');
+
+const postId =postIdInput.value.trim();
   if (postId) {
     fetchAndDisplayPost(postId);
   } else {
     alert("Please enter a valid Post ID.");
   }
+  setTimeout(function () {
+   
+     spinner.classList.add('d-none');
+  }, 1000);
 });
 
 function fetchPosts() {
@@ -67,7 +70,7 @@ function createPostCard(post) {
   div.classList.add("postCard");
   title.classList.add("postTitle");
   body.classList.add("postBody");
-  commentButton.classList.add("commentCard");
+  commentButton.classList.add("commentButton");
 
   commentButton.addEventListener("click", () => {
     goToComments(post.id);
@@ -77,7 +80,6 @@ function createPostCard(post) {
   return div;
 }
 function renderPosts(post) {
-  const postsContainer = document.getElementById("postsContainer");
   postsContainer.innerHTML = "";
   post.forEach((post) => {
     const postCard = createPostCard(post);
