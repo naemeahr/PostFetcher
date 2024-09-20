@@ -65,15 +65,18 @@ function createPostCard(post) {
   body.innerText = post.body;
   postId.innerText = `Post ID: ${post.id}`;
   commentButton.innerText = "View Comments";
-
+ 
   div.classList.add("postsContainer");
   div.classList.add("postCard");
   title.classList.add("postTitle");
   body.classList.add("postBody");
   commentButton.classList.add("commentButton");
+  commentButton.classList.add("view-comments-btn");
+  commentButton.setAttribute("data-post-id", post.id);
 
   commentButton.addEventListener("click", () => {
-    goToComments(post.id);
+    console.log(`Post ID: ${post.id}`);
+    openCommentsModal(post.id);
   });
 
   div.append(title, body, postId, commentButton);
@@ -87,8 +90,52 @@ function renderPosts(post) {
   });
 }
 
-function goToComments(postId) {
-  window.location.href = `comment.html?postId=${postId}`;
-}
+const modalBody = document.getElementById("modalCommentsBody");
 
-fetchPosts();
+function fetchCommentsByPostId(postId) {
+      spinner.classList.remove('d-none'); 
+      modalBody.innerHTML = "";
+  if (postId) {
+    fetch(`${baseUrl}/comments?postId=${postId}`)
+      .then((response) => response.json())
+
+      .then((comments) => {
+        spinner.classList.add('d-none');
+       if (comments.length>0){
+        comments.forEach((comment) => {
+          const commentCard = document.createElement("div");
+          commentCard.classList.add("commentCards");
+
+          const name = document.createElement("h3");
+          name.innerText = comment.name;
+
+          const body = document.createElement("p");
+          body.innerText = comment.body;
+
+          commentCard.append(name, body);
+          modalBody.appendChild(commentCard);
+        });
+        } else {
+          modalBody.innerHTML = "<p>No Post Found.</p>";
+      }
+  })
+      .catch((error) => {
+         console.error("Error:", error);
+         spinner.classList.add('d-none');
+         modalBody.innerHTML = "<p>Error loading comments.</p>";
+      });
+  } else {
+    console.error("No postId found in the URL");
+    spinner.classList.add('d-none');
+   modalBody.innerHTML = "<p>No Post ID found.</p>";
+  }
+}
+function openCommentsModal(postId) {
+  const commentsModal = new bootstrap.Modal(document.getElementById('commentsModal'));
+  commentsModal.show();
+
+  fetchCommentsByPostId(postId);
+}
+document.addEventListener("DOMContentLoaded", () => {
+    fetchPosts();
+});
