@@ -3,6 +3,7 @@ const baseUrl = "https://jsonplaceholder.typicode.com";
 const postsContainer = document.getElementById("postsContainer");
 const searchBtn = document.getElementById("searchBtn");
 const spinner = document.getElementById("spinner");
+const icon = document.getElementById("icon");
 const postIdInput = document.getElementById("postId");
 
 function fetchAndDisplayPost(postId) {
@@ -18,25 +19,31 @@ function fetchAndDisplayPost(postId) {
           postsContainer.innerHTML = "<p>Not Post Found..</p>";
         }
       })
-      .catch((error) => console.error("Error:", error));
+      .catch((error) => {
+        console.error("Error:", error);
+        alert("Error fetching post.");
+      })
+      .finally(() => {
+        spinner.classList.add("d-none");
+        icon.classList.remove("d-none");
+      });
   } else {
     alert("please enter a valid postId.");
+    spinner.classList.add("d-none");
+    icon.classList.remove("d-none");
   }
 }
 
 document.getElementById("searchBtn").addEventListener("click", function () {
-  spinner.classList.remove('d-none');
+  icon.classList.add("d-none");
+  spinner.classList.remove("d-none");
 
-const postId =postIdInput.value.trim();
+  const postId = postIdInput.value.trim();
   if (postId) {
     fetchAndDisplayPost(postId);
   } else {
     alert("Please enter a valid Post ID.");
   }
-  setTimeout(function () {
-   
-     spinner.classList.add('d-none');
-  }, 1000);
 });
 
 function fetchPosts() {
@@ -65,7 +72,7 @@ function createPostCard(post) {
   body.innerText = post.body;
   postId.innerText = `Post ID: ${post.id}`;
   commentButton.innerText = "View Comments";
- 
+
   div.classList.add("postsContainer");
   div.classList.add("postCard");
   title.classList.add("postTitle");
@@ -93,49 +100,51 @@ function renderPosts(post) {
 const modalBody = document.getElementById("modalCommentsBody");
 
 function fetchCommentsByPostId(postId) {
-      spinner.classList.remove('d-none'); 
-      modalBody.innerHTML = "";
+  spinner.classList.remove("d-none");
+  modalBody.innerHTML = "";
   if (postId) {
     fetch(`${baseUrl}/comments?postId=${postId}`)
       .then((response) => response.json())
 
       .then((comments) => {
-        spinner.classList.add('d-none');
-       if (comments.length>0){
-        comments.forEach((comment) => {
-          const commentCard = document.createElement("div");
-          commentCard.classList.add("commentCards");
+        spinner.classList.add("d-none");
+        if (comments.length > 0) {
+          comments.forEach((comment) => {
+            const commentCard = document.createElement("div");
+            commentCard.classList.add("commentCards");
 
-          const name = document.createElement("h3");
-          name.innerText = comment.name;
+            const name = document.createElement("h3");
+            name.innerText = comment.name;
 
-          const body = document.createElement("p");
-          body.innerText = comment.body;
+            const body = document.createElement("p");
+            body.innerText = comment.body;
 
-          commentCard.append(name, body);
-          modalBody.appendChild(commentCard);
-        });
+            commentCard.append(name, body);
+            modalBody.appendChild(commentCard);
+          });
         } else {
           modalBody.innerHTML = "<p>No Post Found.</p>";
-      }
-  })
+        }
+      })
       .catch((error) => {
-         console.error("Error:", error);
-         spinner.classList.add('d-none');
-         modalBody.innerHTML = "<p>Error loading comments.</p>";
+        console.error("Error:", error);
+        spinner.classList.add("d-none");
+        modalBody.innerHTML = "<p>Error loading comments.</p>";
       });
   } else {
     console.error("No postId found in the URL");
-    spinner.classList.add('d-none');
-   modalBody.innerHTML = "<p>No Post ID found.</p>";
+    spinner.classList.add("d-none");
+    modalBody.innerHTML = "<p>No Post ID found.</p>";
   }
 }
 function openCommentsModal(postId) {
-  const commentsModal = new bootstrap.Modal(document.getElementById('commentsModal'));
+  const commentsModal = new bootstrap.Modal(
+    document.getElementById("commentsModal")
+  );
   commentsModal.show();
 
   fetchCommentsByPostId(postId);
 }
 document.addEventListener("DOMContentLoaded", () => {
-    fetchPosts();
+  fetchPosts();
 });
