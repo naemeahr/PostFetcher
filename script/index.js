@@ -1,48 +1,66 @@
 const baseUrl = "https://jsonplaceholder.typicode.com";
+document.addEventListener("DOMContentLoaded", () => {
+  fetchPosts();
+});
 
 const postsContainer = document.getElementById("postsContainer");
 const searchBtn = document.getElementById("searchBtn");
 const spinner = document.getElementById("spinner");
 const icon = document.getElementById("icon");
 const postIdInput = document.getElementById("postId");
+const modalBody = document.getElementById("modalCommentsBody");
+const modalSpinner = document.getElementById("modalSpinner");
 
-function fetchAndDisplayPost(postId) {
-  if (postId) {
-    fetch(`${baseUrl}/posts/${postId}`)
-      .then((response) => response.json())
-      .then((post) => {
-        postsContainer.innerHTML = "";
-        if (post && postId) {
-          const postCard = createPostCard(post);
-          postsContainer.appendChild(postCard);
-        } else {
-          postsContainer.innerHTML = "<p>Not Post Found..</p>";
-        }
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-        alert("Error fetching post.");
-      })
-      .finally(() => {
-        spinner.classList.add("d-none");
-        icon.classList.remove("d-none");
-      });
+
+function toggleSpinner(spinner, show) {
+  if (show) {
+    spinner.classList.remove("d-none");
   } else {
-    alert("please enter a valid postId.");
     spinner.classList.add("d-none");
-    icon.classList.remove("d-none");
   }
 }
 
+function fetchAndDisplayPost(postId) {
+  return new Promise((resolve) => {
+    if (postId) {
+      fetch(`${baseUrl}/posts/${postId}`)
+        .then((response) => response.json())
+        .then((post) => {
+          postsContainer.innerHTML = "";
+          if (post && postId) {
+            const postCard = createPostCard(post);
+            postsContainer.appendChild(postCard);
+          } else {
+            postsContainer.innerHTML = "<p>Not Post Found..</p>";
+          }
+          resolve();
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          alert("Error fetching post.");
+          resolve();
+        });
+    } else {
+      alert("please enter a valid postId.");
+      resolve();
+    }
+  });
+}
+
 document.getElementById("searchBtn").addEventListener("click", function () {
-  icon.classList.add("d-none");
-  spinner.classList.remove("d-none");
+  toggleSpinner(spinner, true);
+  postsContainer.innerHTML = "";
+  postsContainer.style.display = "none";
 
   const postId = postIdInput.value.trim();
   if (postId) {
-    fetchAndDisplayPost(postId);
+    fetchAndDisplayPost(postId).then(() => {
+      toggleSpinner(spinner, false);
+      postsContainer.style.display = "block";
+    });
   } else {
     alert("Please enter a valid Post ID.");
+    toggleSpinner(spinner, false);
   }
 });
 
@@ -82,69 +100,75 @@ function createPostCard(post) {
   commentButton.setAttribute("data-post-id", post.id);
 
   commentButton.addEventListener("click", () => {
-    console.log(`Post ID: ${post.id}`);
     openCommentsModal(post.id);
   });
 
   div.append(title, body, postId, commentButton);
   return div;
 }
-function renderPosts(post) {
+function renderPosts(posts) {
   postsContainer.innerHTML = "";
-  post.forEach((post) => {
+  posts.forEach((post) => {
     const postCard = createPostCard(post);
     postsContainer.appendChild(postCard);
   });
 }
 
-const modalBody = document.getElementById("modalCommentsBody");
-
 function fetchCommentsByPostId(postId) {
-  spinner.classList.remove("d-none");
-  modalBody.innerHTML = "";
-  if (postId) {
-    fetch(`${baseUrl}/comments?postId=${postId}`)
-      .then((response) => response.json())
+  return new Promise((resolve, reject) => {
+    toggleSpinner(modalSpinner, true);
+    modalBody.innerHTML = "";
+    if (postId) {
+      fetch(`${baseUrl}/comments?postId=${postId}`)
+        .then((response) => response.json())
+        .then((comments) => {
+          toggleSpinner(modalSpinner, false);
 
-      .then((comments) => {
-        spinner.classList.add("d-none");
-        if (comments.length > 0) {
-          comments.forEach((comment) => {
-            const commentCard = document.createElement("div");
-            commentCard.classList.add("commentCards");
 
-            const name = document.createElement("h3");
-            name.innerText = comment.name;
+          if (comments.length > 0) {
+            comments.forEach((comment) => {
+              const commentCard = document.createElement("div");
+              commentCard.classList.add("commentCards");
+              const name = document.createElement("h3");
+              name.innerText = comment.name;
 
-            const body = document.createElement("p");
-            body.innerText = comment.body;
-
-            commentCard.append(name, body);
-            modalBody.appendChild(commentCard);
-          });
-        } else {
-          modalBody.innerHTML = "<p>No Post Found.</p>";
-        }
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-        spinner.classList.add("d-none");
-        modalBody.innerHTML = "<p>Error loading comments.</p>";
-      });
-  } else {
-    console.error("No postId found in the URL");
-    spinner.classList.add("d-none");
-    modalBody.innerHTML = "<p>No Post ID found.</p>";
-  }
+              const body = document.createElement("p");
+              body.innerText = comment.body;
+              commentCard.append(name, body);
+              modalBody.appendChild(commentCard);
+            });
+          } else {
+            modalBody.innerHTML = "<p>No Post Found.</p>";
+          }
+          resolve();
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          modalBody.innerHTML = "<p>Error loading comments.</p>";
+          toggleSpinner(modalSpinner, false);
+          reject(error);
+        });
+    } else {
+      modalBody.innerHTML = "<p>No Post ID found.</p>";
+      toggleSpinner(modalSpinner, false);
+      reject(new Error("Invalid postId"));
+    }
+  });
 }
 function openCommentsModal(postId) {
   const commentsModal = new bootstrap.Modal(
     document.getElementById("commentsModal")
   );
   commentsModal.show();
-
-  fetchCommentsByPostId(postId);
+  toggleSpinner(modalSpinner, true);
+  modalBody.innerHTML = "";
+  fetchCommentsByPostId(postId)
+    .then(() => {
+      
+      toggleSpinner(modalSpinner, false);
+    })
+    .catch((error) => {
+      console.error("Error loading comments:", error);
+      toggleSpinner(modalSpinner, false);
+    });
 }
-document.addEventListener("DOMContentLoaded", () => {
-  fetchPosts();
-});
