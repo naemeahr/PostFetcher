@@ -100,7 +100,7 @@ function createPostCard(post) {
   commentButton.setAttribute("data-post-id", post.id);
 
   commentButton.addEventListener("click", () => {
-    openCommentsModal(post.id);
+     openCommentsModal(post.id);
   });
 
   div.append(title, body, postId, commentButton);
