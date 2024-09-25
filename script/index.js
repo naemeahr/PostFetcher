@@ -11,7 +11,6 @@ const postIdInput = document.getElementById("postId");
 const modalBody = document.getElementById("modalCommentsBody");
 const modalSpinner = document.getElementById("modalSpinner");
 
-
 function toggleSpinner(spinner, show) {
   if (show) {
     spinner.classList.remove("d-none");
@@ -100,7 +99,7 @@ function createPostCard(post) {
   commentButton.setAttribute("data-post-id", post.id);
 
   commentButton.addEventListener("click", () => {
-     openCommentsModal(post.id);
+    openCommentsModal(post.id);
   });
 
   div.append(title, body, postId, commentButton);
@@ -116,16 +115,12 @@ function renderPosts(posts) {
 
 function fetchCommentsByPostId(postId) {
   return new Promise((resolve, reject) => {
-    toggleSpinner(modalSpinner, true);
-    modalBody.innerHTML = "";
     if (postId) {
       fetch(`${baseUrl}/comments?postId=${postId}`)
         .then((response) => response.json())
         .then((comments) => {
-          toggleSpinner(modalSpinner, false);
-
-
           if (comments.length > 0) {
+            modalBody.innerHTML = "";
             comments.forEach((comment) => {
               const commentCard = document.createElement("div");
               commentCard.classList.add("commentCards");
@@ -145,12 +140,10 @@ function fetchCommentsByPostId(postId) {
         .catch((error) => {
           console.error("Error:", error);
           modalBody.innerHTML = "<p>Error loading comments.</p>";
-          toggleSpinner(modalSpinner, false);
           reject(error);
         });
     } else {
       modalBody.innerHTML = "<p>No Post ID found.</p>";
-      toggleSpinner(modalSpinner, false);
       reject(new Error("Invalid postId"));
     }
   });
@@ -159,16 +152,16 @@ function openCommentsModal(postId) {
   const commentsModal = new bootstrap.Modal(
     document.getElementById("commentsModal")
   );
+
+  modalBody.innerHTML = `
+  <div id="modalSpinner" class="spinner-border text-primary" role="status">
+    <span class="visually-hidden">Loading...</span>
+  </div>
+`;
   commentsModal.show();
   toggleSpinner(modalSpinner, true);
-  modalBody.innerHTML = "";
   fetchCommentsByPostId(postId)
-    .then(() => {
-      
-      toggleSpinner(modalSpinner, false);
-    })
-    .catch((error) => {
-      console.error("Error loading comments:", error);
-      toggleSpinner(modalSpinner, false);
-    });
+    .then(() => {})
+    .catch((error) => console.error("Error loading comments:", error))
+    .finally(() => toggleSpinner(modalSpinner, false));
 }
